@@ -5,6 +5,19 @@
  * See .env.example for the full list.
  */
 
+// ── Startup guard — fail immediately if secrets are not configured ────────────
+const _KNOWN_DEFAULTS = new Set([
+  'change-this-secret-in-production',
+  '',
+]);
+
+if (!process.env.INTERNAL_SECRET || _KNOWN_DEFAULTS.has(process.env.INTERNAL_SECRET)) {
+  console.error('[config] FATAL: INTERNAL_SECRET is not set or is still the default placeholder.');
+  console.error('[config] Generate a secret with:');
+  console.error('[config]   node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
+  process.exit(1);
+}
+
 export const config = {
   // ── HTTP server ────────────────────────────────────────────────────────────
   http: {

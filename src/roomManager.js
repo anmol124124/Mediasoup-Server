@@ -32,24 +32,29 @@ class RoomManager {
   async getOrCreate(roomId) {
     // Fast path: room already exists
     if (this._rooms.has(roomId)) {
+      console.log(`[RoomManager] getOrCreate HIT  roomId=${roomId}  total_rooms=${this._rooms.size}`);
       return this._rooms.get(roomId);
     }
 
     // Slow path: creation already in-flight — reuse the same Promise
     if (this._creating.has(roomId)) {
+      console.log(`[RoomManager] getOrCreate IN-FLIGHT  roomId=${roomId}`);
       return this._creating.get(roomId);
     }
 
     // First caller: start creation and store the Promise so concurrent callers
     // can await it instead of launching a duplicate Room.create().
+    console.log(`[RoomManager] getOrCreate NEW  roomId=${roomId}`);
     const creationPromise = Room.create(roomId, workerPool.next())
       .then((room) => {
         this._rooms.set(roomId, room);
         this._creating.delete(roomId);
+        console.log(`[RoomManager] room created  roomId=${roomId}  total_rooms=${this._rooms.size}`);
         return room;
       })
       .catch((err) => {
         this._creating.delete(roomId);
+        console.error(`[RoomManager] room creation FAILED  roomId=${roomId}  error=${err.message}`);
         throw err;
       });
 

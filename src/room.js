@@ -72,6 +72,7 @@ export class Room {
   getOrCreatePeer(peerId) {
     if (!this.peers.has(peerId)) {
       this.peers.set(peerId, new Peer(peerId));
+      console.log(`[Room] Peer created  roomId=${this.id}  peerId=${peerId}  total_peers=${this.peers.size}`);
     }
     return this.peers.get(peerId);
   }
